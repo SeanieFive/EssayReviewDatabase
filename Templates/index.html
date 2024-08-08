@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Entry</title>
+    <style>
+        body {
+            font-family: Calibri, sans-serif;
+            background-color: #6DA89A;
+            padding: 10px;
+        }
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 30px;
+            max-width: 200px; /* Adjust size as needed */
+            width: 100%;
+            height: auto;
+        }
+        h2, h3 {
+            color: #38695D;
+            margin-left: 10px;
+        }
+        .container, .summary-container, .table-container {
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px 10px;
+            background-color: #AADBCF;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            width: 120px;
+            text-align: right;
+            margin-right: 10px;
+            font-size: 12px;
+            color: #38695D;
+            grid-column: span 1;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+        .form-group.full-span {
+            grid-column: span 3;
+        }
+        input[type="text"], input[type="date"], select {
+            font-size: 12px;
+            color: #38695D;
+            width: 100%;
+            max-width: 180px;
+        }
+        textarea {
+            width: 85%;
+        }
+        input[type="submit"] {
+            padding: 5px 10px;
+            width: auto;
+            grid-column: span 3;
+            justify-self: center;
+            color: #38695D;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+        }
+        .summary-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .summary-item label {
+            width: 100%;
+            max-width: 200px;
+            font-weight: bold;
+            color: #38695D;
+        }
+        .summary-item input[type="text"] {
+            width: 100%;
+            max-width: 100px;
+            text-align: center;
+            background-color: #e7eceb;
+            border: none;
+            font-weight: bold;
+            color: #38695D;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #38695D;
+            padding: 5px;
+            font-size: 12px;
+            text-align: center;
+            color: #38695D;
+        }
+        th {
+            background-color: #AADBCF;
+        }
+        td.comments {
+            text-align: left !important;
+        }
+        .edit-button {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+
+    <div class="container">
+        <h3>Enter Student Essay Info</h3>
+        <form action="/submit" method="post">
+            <input type="hidden" id="row_index" name="row_index" value="">
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="essay_type">Essay Type:</label>
+                <select id="essay_type" name="essay_type" required>
+                    <option value="" disabled selected>Select Essay Type</option>
+                    <option value="Personal Statement">Personal Statement</option>
+                    <option value="UC PIQ">UC PIQ</option>
+                    <option value="50-300 words">50-300 words</option>
+                    <option value="301-600 words">301-600 words</option>
+                    <option value="601-750 words">601-750 words</option>
+                    <option value="Activities Review">Activities Review</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="draft_number">Draft Number:</label>
+                <select id="draft_number" name="draft_number" required>
+                    <option value="" disabled selected>Select Draft</option>
+                    <option value="Draft 1">Draft 1</option>
+                    <option value="Draft 2">Draft 2</option>
+                    <option value="Draft 3+">Draft 3+</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="student_name">Student Name:</label>
+                <input type="text" id="student_name" name="student_name" maxlength="50" required>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="" disabled selected>Select Status</option>
+                    <option value="Invoice">Invoice</option>
+                    <option value="Returned">Returned</option>
+                </select>
+            </div>
+            <div class="form-group full-span">
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" rows="3" maxlength="400" required></textarea>
+            </div>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+
+    <div class="summary-container">
+        <h3>Essay Review Summary</h3>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <label>Total Reviews Today:</label>
+                <input type="text" id="total_reviews_today" readonly>
+            </div>
+            <div class="summary-item">
+                <label>Total Reviews Overall:</label>
+                <input type="text" id="total_reviews" readonly>
+            </div>
+            <div class="summary-item">
+                <label>Total Estimated Payout for Today:</label>
+                <input type="text" id="total_payout_today" readonly>
+            </div>
+            <div class="summary-item">
+                <label>Total Estimated Payout Overall:</label>
+                <input type="text" id="total_payout" readonly>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h3>Completed Essay Reviews</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Student Name</th>
+                    <th>Essay Type</th>
+                    <th>Draft #</th>
+                    <th>Status</th>
+                    <th>Comments</th>
+                    <th>Payout</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in enumerate(data) %}
+                <tr>
+                    <td>{{ row['Date'] }}</td>
+                    <td>{{ row['Student Name'] }}</td>
+                    <td>{{ row['Essay Type'] }}</td>
+                    <td>{{ row['Draft Number'] }}</td>
+                    <td>{{ row['Status'] }}</td>
+                    <td class="comments">{{ row['Comments'] }}</td>
+                    <td>{{ "${:.2f}".format(row['Payout']) }}</td>
+                    <td><span class="edit-button" onclick="editEntry({{ index }})">Edit</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function editEntry(index) {
+            const row = {{ data | tojson }};
+            document.getElementById('row_index').value = index;
+            document.getElementById('date').value = new Date(row[index]['Date']).toISOString().split('T')[0];
+            document.getElementById('student_name').value = row[index]['Student Name'];
+            document.getElementById('essay_type').value = row[index]['Essay Type'];
+            document.getElementById('draft_number').value = row[index]['Draft Number'];
+            document.getElementById('status').value = row[index]['Status'];
+            document.getElementById('comments').value = row[index]['Comments'];
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+
+            const data = {{ data | tojson }};
+            const todayFormatted = new Date().toISOString().split('T')[0];
+            let totalReviewsToday = 0;
+            let totalPayoutToday = 0.0;
+            let totalReviews = data.length;
+            let totalPayout = 0.0;
+
+            data.forEach(entry => {
+                const entryDate = new Date(entry['Date']).toISOString().split('T')[0];
+                if (entryDate === todayFormatted) {
+                    totalReviewsToday++;
+                    totalPayoutToday += parseFloat(entry['Payout']) || 0.0;
+                }
+                totalPayout += parseFloat(entry['Payout']) || 0.0;
+            });
+
+            document.getElementById('total_reviews_today').value = totalReviewsToday;
+            document.getElementById('total_reviews').value = totalReviews;
+            document.getElementById('total_payout_today').value = `$${totalPayoutToday.toFixed(2)}`;
+            document.getElementById('total_payout').value = `$${totalPayout.toFixed(2)}`;
+        });
+    </script>
+</body>
+</html>
